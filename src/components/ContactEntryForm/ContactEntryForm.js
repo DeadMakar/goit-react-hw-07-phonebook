@@ -1,19 +1,26 @@
-import { nanoid } from 'nanoid';
+// import { nanoid } from 'nanoid';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import { StyledForm, Error, Title } from './ContactEntryForm.styled';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectContacts } from 'redux/selectors';
+import { useDispatch } from 'react-redux';
+// import { selectContacts } from 'redux/selectors';
+import { addContact } from 'redux/operations';
 
 export const ContactEntryForm = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(selectContacts);
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    const form = event.target;
+    dispatch(addContact(event.target.elements.text.value));
+    form.reset();
+  };
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
-    number: Yup.string()
+    phone: Yup.string()
       .matches(
-        /^\d{3}-\d{2}-\d{2}$/,
+        /^\d{3}-\d{3}-\d{4}$/,
         'Phone number must be in the format "000-00-00"'
       )
       .required('Number is required'),
@@ -21,25 +28,25 @@ export const ContactEntryForm = () => {
 
   const initialValues = {
     name: '',
-    number: '',
+    phone: '',
   };
 
   const formatPhoneNumber = value => {
     const phoneNumber = value.replace(/\D/g, '');
+
     if (phoneNumber.length <= 6) {
-      return phoneNumber.replace(/(\d{3})(\d{0,2})/, '$1-$2');
+      return phoneNumber.replace(/(\d{3})(\d{0,3})/, '$1-$2');
     } else {
-      return phoneNumber.replace(/(\d{3})(\d{2})(\d{0,2})/, '$1-$2-$3');
+      return phoneNumber.replace(/(\d{3})(\d{3})(\d{0,4})/, '$1-$2-$3');
     }
   };
-
-  const isContactExists = (name, number) => {
-    return contacts.some(
-      contact =>
-        contact.name.toLowerCase() === name.toLowerCase() ||
-        contact.number === number
-    );
-  };
+  // const isContactExists = (name, phone) => {
+  //   return contacts.some(
+  //     contact =>
+  //       contact.name.toLowerCase() === name.toLowerCase() ||
+  //       contact.phone === phone
+  //   );
+  // };
 
   const handlePhoneChange = (e, setFieldValue) => {
     const { value } = e.target;
@@ -47,20 +54,20 @@ export const ContactEntryForm = () => {
     setFieldValue('number', formattedValue);
   };
 
-  const handleSubmit = (values, { resetForm }) => {
-    const { name, number } = values;
+  // const handleSubmit = (values, { resetForm }) => {
+  //   const { name, number } = values;
 
-    if (isContactExists(name, number)) {
-      alert('Contact with the same name or number already exists!');
-      return;
-    }
+  //   if (isContactExists(name, number)) {
+  //     alert('Contact with the same name or number already exists!');
+  //     return;
+  //   }
 
-    dispatch({
-      type: 'contacts/addContact',
-      payload: { id: nanoid(), ...values },
-    });
-    resetForm();
-  };
+  //   dispatch({
+  //     type: 'contacts/addContact',
+  //     payload: { id: nanoid(), ...values },
+  //   });
+  //   resetForm();
+  // };
 
   return (
     <>
@@ -74,19 +81,19 @@ export const ContactEntryForm = () => {
           <StyledForm>
             <div>
               <label htmlFor="name">Name:</label>
-              <Field type="text" id="name" name="name" />
+              <Field type="text" id="phone" name="name" />
               <Error name="name" component="div" />
             </div>
             <div>
-              <label htmlFor="number">Number:</label>
+              <label htmlFor="phone">Number:</label>
               <Field
                 type="text"
-                id="number"
-                name="number"
+                id="phone"
+                name="name"
                 onChange={e => handlePhoneChange(e, setFieldValue)}
-                value={values.number}
+                value={values.phone}
               />
-              <Error name="number" component="div" />
+              <Error name="name" component="div" />
             </div>
             <button type="submit">Add contact</button>
           </StyledForm>
