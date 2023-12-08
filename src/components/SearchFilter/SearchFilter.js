@@ -1,3 +1,4 @@
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyledSearchFilter, ContactTitle } from './SearchFilter.styled';
 import { changeFilter } from 'redux/filterSlice';

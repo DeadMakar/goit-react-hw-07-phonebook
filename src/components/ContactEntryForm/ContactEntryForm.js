@@ -9,11 +9,8 @@ import { addContact } from 'redux/operations';
 export const ContactEntryForm = () => {
   const dispatch = useDispatch();
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    const form = event.target;
-    dispatch(addContact(event.target.elements.text.value));
-    form.reset();
+  const handleSubmit = values => {
+    dispatch(addContact({ name: values.name, phone: values.phone }));
   };
 
   const validationSchema = Yup.object({
@@ -34,10 +31,10 @@ export const ContactEntryForm = () => {
   const formatPhoneNumber = value => {
     const phoneNumber = value.replace(/\D/g, '');
 
-    if (phoneNumber.length <= 6) {
-      return phoneNumber.replace(/(\d{3})(\d{0,3})/, '$1-$2');
+    if (phoneNumber.length <= 10) {
+      return phoneNumber.replace(/(\d{3})(\d{0,3})(\d{0,4})/, '$1-$2-$3');
     } else {
-      return phoneNumber.replace(/(\d{3})(\d{3})(\d{0,4})/, '$1-$2-$3');
+      return phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
     }
   };
   // const isContactExists = (name, phone) => {
@@ -51,7 +48,7 @@ export const ContactEntryForm = () => {
   const handlePhoneChange = (e, setFieldValue) => {
     const { value } = e.target;
     const formattedValue = formatPhoneNumber(value);
-    setFieldValue('number', formattedValue);
+    setFieldValue('phone', formattedValue);
   };
 
   // const handleSubmit = (values, { resetForm }) => {
@@ -81,7 +78,7 @@ export const ContactEntryForm = () => {
           <StyledForm>
             <div>
               <label htmlFor="name">Name:</label>
-              <Field type="text" id="phone" name="name" />
+              <Field type="text" id="name" name="name" />
               <Error name="name" component="div" />
             </div>
             <div>
@@ -89,11 +86,11 @@ export const ContactEntryForm = () => {
               <Field
                 type="text"
                 id="phone"
-                name="name"
+                name="phone"
                 onChange={e => handlePhoneChange(e, setFieldValue)}
                 value={values.phone}
               />
-              <Error name="name" component="div" />
+              <Error name="phone" component="div" />
             </div>
             <button type="submit">Add contact</button>
           </StyledForm>

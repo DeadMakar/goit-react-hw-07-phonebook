@@ -20,7 +20,8 @@ export const StyledSearchFilter = styled.div`
     font-size: 16px;
     padding: 5px;
     font-size: 16px;
-    width: 300px;
+    width: 600px;
     margin: auto;
+    margin-bottom: 20px;
   }
 `;
