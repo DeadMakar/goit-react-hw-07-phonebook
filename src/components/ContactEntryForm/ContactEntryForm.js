@@ -1,24 +1,20 @@
-// import { nanoid } from 'nanoid';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import { StyledForm, Error, Title } from './ContactEntryForm.styled';
-import { useDispatch } from 'react-redux';
-// import { selectContacts } from 'redux/selectors';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectContacts } from 'redux/selectors';
 import { addContact } from 'redux/operations';
 
 export const ContactEntryForm = () => {
+  const contacts = useSelector(selectContacts);
   const dispatch = useDispatch();
-
-  const handleSubmit = values => {
-    dispatch(addContact({ name: values.name, phone: values.phone }));
-  };
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
     phone: Yup.string()
       .matches(
         /^\d{3}-\d{3}-\d{4}$/,
-        'Phone number must be in the format "000-00-00"'
+        'Phone number must be in the format "000-000-0000"'
       )
       .required('Number is required'),
   });
@@ -37,13 +33,6 @@ export const ContactEntryForm = () => {
       return phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
     }
   };
-  // const isContactExists = (name, phone) => {
-  //   return contacts.some(
-  //     contact =>
-  //       contact.name.toLowerCase() === name.toLowerCase() ||
-  //       contact.phone === phone
-  //   );
-  // };
 
   const handlePhoneChange = (e, setFieldValue) => {
     const { value } = e.target;
@@ -51,20 +40,16 @@ export const ContactEntryForm = () => {
     setFieldValue('phone', formattedValue);
   };
 
-  // const handleSubmit = (values, { resetForm }) => {
-  //   const { name, number } = values;
-
-  //   if (isContactExists(name, number)) {
-  //     alert('Contact with the same name or number already exists!');
-  //     return;
-  //   }
-
-  //   dispatch({
-  //     type: 'contacts/addContact',
-  //     payload: { id: nanoid(), ...values },
-  //   });
-  //   resetForm();
-  // };
+  const handleAddContact = newContact => {
+    const isNameRepeat = contacts.some(
+      item => item.name.toLowerCase() === newContact.name.toLowerCase()
+    );
+    if (isNameRepeat) {
+      alert(`${newContact.name} вже є в контактах.`);
+      return;
+    }
+    dispatch(addContact(newContact));
+  };
 
   return (
     <>
@@ -72,7 +57,10 @@ export const ContactEntryForm = () => {
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={(values, actions) => {
+          handleAddContact(values);
+          actions.resetForm();
+        }}
       >
         {({ values, setFieldValue }) => (
           <StyledForm>

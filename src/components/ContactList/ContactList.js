@@ -7,31 +7,34 @@ import {
   StyledDeleteButton,
 } from './ContactList.styled';
 import { deleteContact } from 'redux/operations';
-import { selectContacts, selectFilters } from 'redux/selectors';
+import {
+  selectError,
+  selectIsLoading,
+  selectVisibleContacts,
+} from 'redux/selectors';
 
 export const ContactList = () => {
-  const contacts = useSelector(selectContacts);
-  const filter = useSelector(selectFilters);
   const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+  const contactsByFilter = useSelector(selectVisibleContacts);
 
   const handleDelete = id => dispatch(deleteContact(id));
 
-  const filteredContacts = contacts.filter(contact => {
-    const contactName = contact.name ? contact.name.toLowerCase() : '';
-    const filterLowerCase = filter ? filter.toLowerCase() : '';
-    return contactName.includes(filterLowerCase);
-  });
-
   return (
-    <StyledContactList>
-      {filteredContacts.map(contact => (
-        <StyledContactItem key={contact.id}>
-          <ContactListItem contact={contact} />
-          <StyledDeleteButton onClick={() => handleDelete(contact.id)}>
-            X
-          </StyledDeleteButton>
-        </StyledContactItem>
-      ))}
-    </StyledContactList>
+    <>
+      {error && <b>Something went wrong... Try reloading the page </b>}
+      {isLoading && !error && 'Loading...'}
+      <StyledContactList>
+        {contactsByFilter.map(contact => (
+          <StyledContactItem key={contact.id}>
+            <ContactListItem contact={contact} />
+            <StyledDeleteButton onClick={() => handleDelete(contact.id)}>
+              X
+            </StyledDeleteButton>
+          </StyledContactItem>
+        ))}
+      </StyledContactList>
+    </>
   );
 };
